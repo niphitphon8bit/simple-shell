@@ -8,6 +8,18 @@ import (
 )
 
 func TestExecInput(t *testing.T) {
+	originalDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get original directory: %v", err)
+	}
+	t.Cleanup(func() {
+		if chdirErr := os.Chdir(originalDir); chdirErr != nil {
+			t.Errorf("failed to restore directory: %v", chdirErr)
+		}
+	})
+
+	tmpDir := t.TempDir()
+
 	tests := []struct {
 		name        string
 		givenInput  string
@@ -30,15 +42,25 @@ func TestExecInput(t *testing.T) {
 			expectedErr: ErrExit,
 		},
 		{
+			name:        "happy: empty input",
+			givenInput:  "",
+			expectedErr: nil,
+		},
+		{
+			name:        "happy: whitespace input",
+			givenInput:  "   \t   ",
+			expectedErr: nil,
+		},
+		{
 			name:        "happy: cd",
 			givenInput:  "cd",
 			expectedErr: ErrNoPath,
 		},
 		{
-			name:        "happy: cd /",
-			givenInput:  "cd /",
+			name:        "happy: cd temp dir",
+			givenInput:  "cd " + tmpDir,
 			expectedErr: nil,
-			expectedDir: "/",
+			expectedDir: tmpDir,
 		},
 		{
 			name:        "bad: wrong spell command",
@@ -61,8 +83,16 @@ func TestExecInput(t *testing.T) {
 				if err != nil {
 					t.Errorf("Failed to get new directory: %v", err)
 				}
-				if eachTest.expectedDir != curDir {
-					t.Errorf("Failed to change to desired directory.")
+				expectedInfo, err := os.Stat(eachTest.expectedDir)
+				if err != nil {
+					t.Errorf("Failed to stat expected directory: %v", err)
+				}
+				currentInfo, err := os.Stat(curDir)
+				if err != nil {
+					t.Errorf("Failed to stat current directory: %v", err)
+				}
+				if !os.SameFile(expectedInfo, currentInfo) {
+					t.Errorf("Failed to change to desired directory. got=%q want=%q", curDir, eachTest.expectedDir)
 				}
 			}
 		})

@@ -8,11 +8,14 @@ import (
 
 // ExecInput executes a single shell command line.
 func ExecInput(input string) error {
-	// Remove the newline character.
-	input = strings.TrimSuffix(input, "\n")
+	// Normalize user input and ignore empty commands.
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return nil
+	}
 
 	// Split input to separate the command and arguments.
-	args := strings.Split(input, " ")
+	args := strings.Fields(input)
 
 	switch args[0] {
 	case "cd":

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/user"
@@ -36,9 +37,10 @@ func main() {
 		fmt.Print(hostname, "\\", user.Username, "\\", dir, " > ")
 
 		// Read the keyword input.
-		input, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		input, readErr := reader.ReadString('\n')
+		if readErr != nil && !errors.Is(readErr, io.EOF) {
+			fmt.Fprintln(os.Stderr, readErr)
+			continue
 		}
 
 		// Handle the execution of the input.
@@ -47,6 +49,10 @@ func main() {
 				os.Exit(0)
 			}
 			fmt.Fprintln(os.Stderr, err)
+		}
+
+		if errors.Is(readErr, io.EOF) {
+			return
 		}
 	}
 }

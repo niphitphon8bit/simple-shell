@@ -1,0 +1,19 @@
+# Go build artifacts
+/simple-shell
+*.test
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test coverage output
+coverage.out
+*.coverprofile
+
+# IDE/editor metadata
+.vscode/
+.idea/
+
+# macOS filesystem metadata
+.DS_Store

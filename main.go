@@ -4,8 +4,11 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
+	"os/user"
+	"path/filepath"
 	"strings"
 )
 
@@ -13,7 +16,24 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Print("> ")
+		pwdir, err := os.Getwd()
+		if err != nil {
+			log.Fatalf("Error getting present work directory: %v", err)
+		}
+
+		dir := filepath.Base(pwdir)
+
+		hostname, err := os.Hostname()
+		if err != nil {
+			log.Fatalf("Error getting hostname: %v", err)
+		}
+
+		user, err := user.Current()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Print(hostname, "\\", user.Username, "\\", dir, " > ")
 
 		// Read the keyword input.
 		input, err := reader.ReadString('\n')
@@ -45,6 +65,8 @@ func execInput(input string) error {
 		return os.Chdir(args[1])
 	case "exit":
 		os.Exit(0)
+	case "^[[A":
+	case "^[[B":
 	}
 
 	// Prepare the command to execute.

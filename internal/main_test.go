@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"errors"
@@ -16,7 +16,7 @@ func TestExistCommand(t *testing.T) {
 		{
 			name:        "happy: exit",
 			givenInput:  "exit",
-			expectedErr: errExit,
+			expectedErr: ErrExit,
 		},
 		{
 			name:        "bad: wrong spell command",
@@ -28,7 +28,7 @@ func TestExistCommand(t *testing.T) {
 	for _, eachTest := range tests {
 		t.Run(eachTest.name, func(t *testing.T) {
 			// run each test here
-			if err := execInput(eachTest.givenInput); !errors.Is(err, eachTest.expectedErr) {
+			if err := ExecInput(eachTest.givenInput); !errors.Is(err, eachTest.expectedErr) {
 				t.Errorf("execInput() error = %v, want Err %v", err, eachTest.expectedErr)
 			}
 		})
